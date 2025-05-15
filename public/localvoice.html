@@ -880,8 +880,8 @@ audioPlayer = document.getElementById('audio-player');
 function replaceTextUsingSheetData(text, sheetData) {
     sheetData.forEach(row => {
         // 使用 optional chaining 避免空值錯誤
-        const original = row.c[0]?.v; // B 欄 (原始字詞)
-        const replacement = row.c[1]?.v; // C 欄 (替換字詞)
+        const original = row.c[1]?.v; // B 欄 (原始字詞)
+        const replacement = row.c[2]?.v; // C 欄 (替換字詞)
         
         if (original && replacement) {
             // 建立正規表示式時加入完全比對修正
