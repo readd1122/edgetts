@@ -879,10 +879,10 @@ audioPlayer = document.getElementById('audio-player');
         function replaceTextUsingSheetData(text, sheetData) {
             if (!data) return text;
     data.table.rows.forEach(row => {
-        const original = row.c[0]?.v; // B欄 (因為只選了 B 和 C)
-        const replacement = row.c[1]?.v; // C欄
-        if (original && replacement) {
-            text = text.replace(new RegExp(original, "g"), replacement);
+        const originalWord = row.c[0]?.v; // B欄 (因為只選了 B 和 C)
+        const replacementWord = row.c[1]?.v; // C欄
+        if (originalWord && replacementWord) {
+            text = text.replace(new RegExp(originalWord, "g"), replacementWord);
         }
     });
     return text;
