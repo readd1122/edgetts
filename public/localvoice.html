@@ -872,18 +872,19 @@ audioPlayer = document.getElementById('audio-player');
         .catch(err => console.error('Error fetching data:', err));
 }
 
-function replaceTextUsingSheetData(text, sheetData) {
-    sheetData.forEach(row => {
-        // 添加空值检查避免错误
-        if (row.c && row.c[1] && row.c[2]) { 
-            const originalWord = row.c[1].v;
-            const replacementWord = row.c[2].v;
-            const regex = new RegExp(originalWord, 'g');
-            text = text.replace(regex, replacementWord);
+
+
+        function replaceTextUsingSheetData(text, sheetData) {
+            sheetData.forEach(row => {
+                const originalWord = row.c[0].v;
+                const replacementWord = row.c[1].v;
+                const regex = new RegExp(originalWord, 'g');
+                text = text.replace(regex, replacementWord);
+            });
+            return text;
         }
-    });
-    return text;
-}
+
+
 
 
        function sendTextToTTS(selectedText, callback) {
