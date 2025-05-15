@@ -858,29 +858,29 @@ audioPlayer = document.getElementById('audio-player');
         }
 
 function fetchSheetData(sheetId, callback) {
-    const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const query = encodeURIComponent('Select *');
-    const url = `${base}&tq=${query}`;
+            const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
+            const query = encodeURIComponent('Select *');
+            const url = `${base}&tq=${query}`;
 
-    fetch(url)
-        .then(res => res.text())
-        .then(rep => {
-            const data = JSON.parse(rep.substr(47).slice(0, -2));
-            const rows = data.table.rows.slice(1); // 跳過第一列（欄位名稱）
-            callback(rows);
-        })
-        .catch(err => console.error('Error fetching data:', err));
-}
+            fetch(url)
+                .then(res => res.text())
+                .then(rep => {
+                    const data = JSON.parse(rep.substr(47).slice(0, -2));
+                    callback(data.table.rows);
+                })
+                .catch(err => console.error('Error fetching data:', err));
+        }
 
-function replaceTextUsingSheetData(text, sheetData) {
-    sheetData.forEach(row => {
-        const originalWord = row.c[1].v;
-        const replacementWord = row.c[2].v;
-        const regex = new RegExp(originalWord, 'g');
-        text = text.replace(regex, replacementWord);
-    });
-    return text;
-}
+        function replaceTextUsingSheetData(text, sheetData) {
+            sheetData.forEach(row => {
+                const originalWord = row.c[1].v;
+                const replacementWord = row.c[2].v;
+                const regex = new RegExp(originalWord, 'g');
+                text = text.replace(regex, replacementWord);
+            });
+            return text;
+        }
+
 
 
 
