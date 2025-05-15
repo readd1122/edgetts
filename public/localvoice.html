@@ -858,39 +858,30 @@ audioPlayer = document.getElementById('audio-player');
         }
 
    function fetchSheetData(sheetId, callback) {
-    const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const query = encodeURIComponent('Select B, C'); // 明確只選 B 和 C 欄
-    const url = `${base}&tq=${query}`;
+            const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
+            const query = encodeURIComponent('Select *');
+            const url = `${base}&tq=${query}`;
 
-    fetch(url)
-        .then(res => res.text())
-        .then(rep => {
-            // 使用正規表示式安全提取 JSON 資料
-            const jsonStr = rep.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/)[1];
-            const data = JSON.parse(jsonStr);
-            
-            // 加入除錯訊息確認欄位對應
-            console.log("欄位對應檢查:", data.table.rows[0]?.c.map(c => c?.v)); 
-            
-            callback(data.table.rows);
-        })
-        .catch(err => console.error('載入失敗:', err));
-}
-
-function replaceTextUsingSheetData(text, sheetData) {
-    sheetData.forEach(row => {
-        // 使用 optional chaining 避免空值錯誤
-        const original = row.c[1]?.v; // B 欄 (原始字詞)
-        const replacement = row.c[2]?.v; // C 欄 (替換字詞)
-        
-        if (original && replacement) {
-            // 建立正規表示式時加入完全比對修正
-            const regex = new RegExp(`\\b${original}\\b`, 'g');
-            text = text.replace(regex, replacement);
+            fetch(url)
+                .then(res => res.text())
+                .then(rep => {
+                    const data = JSON.parse(rep.substr(47).slice(0, -2));
+                    callback(data.table.rows);
+                })
+                .catch(err => console.error('Error fetching data:', err));
         }
-    });
-    return text;
-}
+
+        function replaceTextUsingSheetData(text, sheetData) {
+            sheetData.forEach(row => {
+                const originalWord = row.c[1].v;
+                const replacementWord = row.c[2].v;
+                const regex = new RegExp(originalWord, 'g');
+                text = text.replace(regex, replacementWord);
+            });
+            return text;
+        }
+
+
 
        function sendTextToTTS(selectedText, callback) {
     // 簡單去除所有空白字符（包括空格、換行、製表符等）
