@@ -876,8 +876,8 @@ audioPlayer = document.getElementById('audio-player');
 
         function replaceTextUsingSheetData(text, sheetData) {
             sheetData.forEach(row => {
-                const originalWord = row.c[0].v;
-                const replacementWord = row.c[1].v;
+                const originalWord = row.c[1].v;
+                const replacementWord = row.c[2].v;
                 const regex = new RegExp(originalWord, 'g');
                 text = text.replace(regex, replacementWord);
             });
