@@ -857,36 +857,36 @@ audioPlayer = document.getElementById('audio-player');
             return urlParams.get('googlesheetid');
         }
 
-     function fetchSheetData(sheetId, callback) {
+   function fetchSheetData(sheetId, callback) {
     const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const query = encodeURIComponent('Select *');
+    const query = encodeURIComponent('Select B, C'); // 明確只選 B 和 C 欄
     const url = `${base}&tq=${query}`;
 
     fetch(url)
         .then(res => res.text())
         .then(rep => {
-            const data = JSON.parse(rep.substr(47).slice(0, -2));
-            // 跳過第一行（標題行），從第二行開始取數據
-            const dataRows = data.table.rows.slice(1);
-            callback(dataRows);
+            // 使用正規表示式安全提取 JSON 資料
+            const jsonStr = rep.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/)[1];
+            const data = JSON.parse(jsonStr);
+            
+            // 加入除錯訊息確認欄位對應
+            console.log("欄位對應檢查:", data.table.rows[0]?.c.map(c => c?.v)); 
+            
+            callback(data.table.rows);
         })
-        .catch(err => console.error('Error fetching data:', err));
+        .catch(err => console.error('載入失敗:', err));
 }
 
 function replaceTextUsingSheetData(text, sheetData) {
     sheetData.forEach(row => {
-        // 檢查欄位是否存在，避免空值錯誤
-        if (row.c && row.c.length >= 3) { // 至少需要三欄（因為要取第二、第三欄）
-            const originalWord = row.c[1]?.v; // 第二欄（B 欄，索引 1）
-            const replacementWord = row.c[2]?.v; // 第三欄（C 欄，索引 2）
-            
-            // 跳過原詞或替換詞為空的行
-            if (!originalWord || !replacementWord) return;
-
-            // 轉義正則特殊字符（如 . * 等）
-            const escapedWord = originalWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(escapedWord, 'g');
-            text = text.replace(regex, replacementWord);
+        // 使用 optional chaining 避免空值錯誤
+        const original = row.c[0]?.v; // B 欄 (原始字詞)
+        const replacement = row.c[1]?.v; // C 欄 (替換字詞)
+        
+        if (original && replacement) {
+            // 建立正規表示式時加入完全比對修正
+            const regex = new RegExp(`\\b${original}\\b`, 'g');
+            text = text.replace(regex, replacement);
         }
     });
     return text;
