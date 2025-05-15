@@ -857,20 +857,19 @@ audioPlayer = document.getElementById('audio-player');
             return urlParams.get('googlesheetid');
         }
 
-   function fetchSheetData(sheetId, callback) {
-    const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const query = encodeURIComponent('Select *');
-    const url = `${base}&tq=${query}`;
+  function fetchSheetData(sheetId, callback) {
+            const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
+            const query = encodeURIComponent('Select *');
+            const url = `${base}&tq=${query}`;
 
-    fetch(url)
-        .then(res => res.text())
-        .then(rep => {
-            const data = JSON.parse(rep.substr(47).slice(0, -2));
-            // 跳过第一行（标题行）
-            callback(data.table.rows.slice(1)); // 修改这里
-        })
-        .catch(err => console.error('Error fetching data:', err));
-}
+            fetch(url)
+                .then(res => res.text())
+                .then(rep => {
+                    const data = JSON.parse(rep.substr(47).slice(0, -2));
+                    callback(data.table.rows);
+                })
+                .catch(err => console.error('Error fetching data:', err));
+        }
 
 
 
