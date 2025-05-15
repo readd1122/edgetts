@@ -857,35 +857,28 @@ audioPlayer = document.getElementById('audio-player');
             return urlParams.get('googlesheetid');
         }
 
-         function fetchSheetData(sheetId) {
-    const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
-    const query = encodeURIComponent('Select B, C'); // 明確只選 B 和 C 欄
-    const url = `${base}&tq=${query}`;
+     function fetchSheetData(sheetId, callback) {
+            const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?`;
+            const query = encodeURIComponent('Select *');
+            const url = `${base}&tq=${query}`;
 
-    return fetch(url)
-        .then(res => res.text())
-        .then(rep => {
-            const jsonStr = rep.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/)[1];
-            const data = JSON.parse(jsonStr);
-            console.log("確認欄位對應:", data.table.rows[0].c); // 應為 [B欄, C欄]
-            return data;
-        })
-        .catch(err => {
-            console.error('載入失敗:', err);
-            return null;
-        });
-}
+            fetch(url)
+                .then(res => res.text())
+                .then(rep => {
+                    const data = JSON.parse(rep.substr(47).slice(0, -2));
+                    callback(data.table.rows);
+                })
+                .catch(err => console.error('Error fetching data:', err));
+        }
 
         function replaceTextUsingSheetData(text, sheetData) {
-            if (!data) return text;
-    data.table.rows.forEach(row => {
-        const originalWord = row.c[0]?.v; // B欄 (因為只選了 B 和 C)
-        const replacementWord = row.c[1]?.v; // C欄
-        if (originalWord && replacementWord) {
-            text = text.replace(new RegExp(originalWord, "g"), replacementWord);
-        }
-    });
-    return text;
+            sheetData.forEach(row => {
+                const originalWord = row.c[0].v;
+                const replacementWord = row.c[1].v;
+                const regex = new RegExp(originalWord, 'g');
+                text = text.replace(regex, replacementWord);
+            });
+            return text;
         }
 
        function sendTextToTTS(selectedText, callback) {
